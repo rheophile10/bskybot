@@ -4,7 +4,6 @@ from datetime import datetime, timezone
 from typing import Tuple, Optional, Dict, Any
 from skoot_bot.bsky.structs import Post
 
-
 class Session:
     def __init__(self, username:str, password:str)->None:
         self.ATP_HOST = "https://bsky.social"
@@ -25,27 +24,27 @@ class Session:
         return (DID, ATP_AUTH_TOKEN)
         # TODO DIDs expire shortly and need to be refreshed for any long-lived sessions
 
-    def get(self, struct:Any, xrpc:str, params:Optional[Dict[str, Any]]=None)->Any:
+    def get(self, xrpc:str, params:Optional[Dict[str, Any]]=None,)->Dict[str,Any]:
         url = f"self.ATP_HOST{xrpc}"
         headers = {"Authorization": "Bearer " + self.ATP_AUTH_TOKEN}
         
-        resp = requests.get(url, params = params, headers=headers)
+        resp = requests.get(url, params=params, headers=headers)
         
         try: 
-            return struct(resp.json())
+            return resp.json()
         except requests.exceptions.HTTPError as e:
-            return f"Error: {e}"
+            return {"Error": e}
         
-    def post(self, struct:Any, xrpc:str, params:Optional[Dict[str, Any]]=None, data:Optional[Dict[str, Any]]=None)->Any:
+    def post(self, xrpc:str, params:Optional[Dict[str, Any]]=None, data:Optional[Dict[str, Any]]=None)->Dict[str,Any]:
         url = f"self.ATP_HOST{xrpc}"
         headers = {"Authorization": "Bearer " + self.ATP_AUTH_TOKEN}
         
-        resp = requests.post(url, params = params, headers=headers, json=data)
+        resp = requests.post(url, params=params, headers=headers, json=data)
         
         try: 
-            return struct(resp.json())
+            return resp.json()
         except requests.exceptions.HTTPError as e:
-            return f"Error: {e}"
+            return {"Error": e}
 
 
     def reskoot(self,url:str)->Response:
@@ -338,3 +337,14 @@ class Session:
 
         return resp
 
+
+
+class BskyThing:
+    def __init__(self, session: Session, xrpc:str, params:Optional[Dict[str, Any]]=None, 
+                 data:Optional[Dict[str, Any]]=None)->None:
+        self.bsky = session
+        self.xrpc = xrpc
+        self.params = params
+        self.data = data
+
+    
