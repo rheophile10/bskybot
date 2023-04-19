@@ -1,29 +1,52 @@
 import requests
 from requests import Response
 from datetime import datetime, timezone
-from typing import Tuple, Optional, Dict
-from skoot_bot.klatzco.structs import Post
+from typing import Tuple, Optional, Dict, Any
+from skoot_bot.bsky.structs import Post
+
 
 class Session:
     def __init__(self, username:str, password:str)->None:
         self.ATP_HOST = "https://bsky.social"
-        self.ATP_AUTH_TOKEN = ""
-        self.DID = ""
+        self.DID, self.ATP_AUTH_TOKEN = self.auth(username, password)
         self.USERNAME = username
 
+    def auth(self, username:str, password:str) -> Tuple[str,str]:
         data = {"identifier": username, "password": password}
         resp = requests.post(
             self.ATP_HOST + "/xrpc/com.atproto.server.createSession",
             json=data
         )
-
-        self.ATP_AUTH_TOKEN = resp.json().get('accessJwt')
+        ATP_AUTH_TOKEN = resp.json().get('accessJwt')
         if self.ATP_AUTH_TOKEN == None:
             raise ValueError("No access token, is your password wrong?")
-
-        self.DID = resp.json().get("did")
-
+        DID = resp.json().get("did")
+        print(resp.json())
+        return (DID, ATP_AUTH_TOKEN)
         # TODO DIDs expire shortly and need to be refreshed for any long-lived sessions
+
+    def get(self, struct:Any, xrpc:str, params:Optional[Dict[str, Any]]=None)->Any:
+        url = f"self.ATP_HOST{xrpc}"
+        headers = {"Authorization": "Bearer " + self.ATP_AUTH_TOKEN}
+        
+        resp = requests.get(url, params = params, headers=headers)
+        
+        try: 
+            return struct(resp.json())
+        except requests.exceptions.HTTPError as e:
+            return f"Error: {e}"
+        
+    def post(self, struct:Any, xrpc:str, params:Optional[Dict[str, Any]]=None, data:Optional[Dict[str, Any]]=None)->Any:
+        url = f"self.ATP_HOST{xrpc}"
+        headers = {"Authorization": "Bearer " + self.ATP_AUTH_TOKEN}
+        
+        resp = requests.post(url, params = params, headers=headers, json=data)
+        
+        try: 
+            return struct(resp.json())
+        except requests.exceptions.HTTPError as e:
+            return f"Error: {e}"
+
 
     def reskoot(self,url:str)->Response:
         # sample url from desktop
