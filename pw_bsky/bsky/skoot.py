@@ -1,16 +1,18 @@
 from typing import List, Dict, Any, Optional
 from bsky.structs import Author, Record, SkootBase, Image
+from bsky.session import Session, BskyThing
 
 
-
-class Skoot:
+class Skoot(BskyThing):
     def __init__(self, 
+                 session: Session,
                  skoot:SkootBase, 
                  parent:Optional[SkootBase], 
                  root:Optional[SkootBase],
                  author:Author,
                  text:Optional[str]='',
                  images:Optional[List[Image]]=[])->None:
+        super().__init__(session)
         self.skoot = skoot
         self.parent = parent
         self.root = root
@@ -18,8 +20,14 @@ class Skoot:
         self.text= text
         self.images = images
     
-
-
+    def delete(self, skoot:Optional[SkootBase])->None:
+        data = {
+            "collection":"app.bsky.feed.post",
+            "repo":f"did:plc:{self.bsky.DID}",
+            "rkey":skoot.rkey
+            }
+        result = self.bsky.post("/xrpc/com.atproto.repo.deleteRecord",data=data)
+        print(result)
 
 class Skoot_:
     url: str

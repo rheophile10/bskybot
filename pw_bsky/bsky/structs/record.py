@@ -7,6 +7,9 @@ class SkootBase:
     cid: str
     uri: str
 
+    def __post_init__(self)->None:
+        self.rkey = self.uri.split('/')[-1]
+
 class Record:
 
     def __init__(self, **kwargs)->None:        

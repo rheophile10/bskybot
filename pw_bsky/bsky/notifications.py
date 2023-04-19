@@ -18,7 +18,7 @@ class Notifications(BskyThing):
     params:Dict[str, int] = {"limit":30}
 
     def __init__(self, session:Session)->None:
-        super().__init__(session, self.xrpc, self.params)
+        super().__init__(session)
 
     def get(self, limit:Optional[int]=None)->Tuple[List[Skoot], Any, Any]:
         if limit:

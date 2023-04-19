@@ -1,7 +1,7 @@
 import requests
 from requests import Response
 from datetime import datetime, timezone
-from typing import Tuple, Optional, Dict, Any
+from typing import Tuple, Optional, Dict, Any, List
 from bsky.skoot import Skoot
 
 class Session:
@@ -248,15 +248,6 @@ class Session:
 
         return resp
 
-    def delete_skoot(self, did:str,rkey:str)->Response:
-        data = {"collection":"app.bsky.feed.post","repo":"did:plc:{}".format(did),"rkey":"{}".format(rkey)}
-        headers = {"Authorization": "Bearer " + self.ATP_AUTH_TOKEN}
-        resp = requests.post(
-            self.ATP_HOST + "/xrpc/com.atproto.repo.deleteRecord",
-            json = data,
-            headers=headers
-        )
-        return resp
 
     def get_car_file(self, did_of_car_to_fetch:Optional[str] = None)->Response:
         '''
@@ -343,11 +334,7 @@ class Session:
 
 
 class BskyThing:
-    def __init__(self, session: Session, xrpc:str, params:Optional[Dict[str, Any]]=None, 
-                 data:Optional[Dict[str, Any]]=None)->None:
+    def __init__(self, session: Session)->None:
         self.bsky = session
-        self.xrpc = xrpc
-        self.params = params
-        self.data = data
 
     
