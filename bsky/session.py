@@ -2,30 +2,33 @@ import requests
 from requests import Response
 from datetime import datetime, timezone
 from typing import Tuple, Optional, Dict, Any
-from skoot_bot.bsky.structs import Post
+from bsky.skoot import Skoot
 
 class Session:
     def __init__(self, username:str, password:str)->None:
         self.ATP_HOST = "https://bsky.social"
-        self.DID, self.ATP_AUTH_TOKEN = self.auth(username, password)
-        self.USERNAME = username
+        self.HANDLE = username
+        self.auth(username, password)
 
-    def auth(self, username:str, password:str) -> Tuple[str,str]:
+    def auth(self, username:str, password:str) -> None:
         data = {"identifier": username, "password": password}
         resp = requests.post(
             self.ATP_HOST + "/xrpc/com.atproto.server.createSession",
             json=data
-        )
-        ATP_AUTH_TOKEN = resp.json().get('accessJwt')
+        ).json()
+        self.ATP_AUTH_TOKEN = resp['accessJwt']
         if self.ATP_AUTH_TOKEN == None:
             raise ValueError("No access token, is your password wrong?")
-        DID = resp.json().get("did")
-        print(resp.json())
-        return (DID, ATP_AUTH_TOKEN)
+        self.REFRESH_TOKEN = resp['refreshJwt']
+        self.EMAIL = resp['email']
+        self.DID = resp["did"]
+
+    def refresh(self):
         # TODO DIDs expire shortly and need to be refreshed for any long-lived sessions
+        pass
 
     def get(self, xrpc:str, params:Optional[Dict[str, Any]]=None,)->Dict[str,Any]:
-        url = f"self.ATP_HOST{xrpc}"
+        url = f"{self.ATP_HOST}{xrpc}"
         headers = {"Authorization": "Bearer " + self.ATP_AUTH_TOKEN}
         
         resp = requests.get(url, params=params, headers=headers)
@@ -36,7 +39,7 @@ class Session:
             return {"Error": e}
         
     def post(self, xrpc:str, params:Optional[Dict[str, Any]]=None, data:Optional[Dict[str, Any]]=None)->Dict[str,Any]:
-        url = f"self.ATP_HOST{xrpc}"
+        url = f"{self.ATP_HOST}{xrpc}"
         headers = {"Authorization": "Bearer " + self.ATP_AUTH_TOKEN}
         
         resp = requests.post(url, params=params, headers=headers, json=data)
@@ -107,7 +110,7 @@ class Session:
         )
         return resp
 
-    def get_skoot_by_url(self,url:str) -> Post:
+    def get_skoot_by_url(self,url:str) -> Skoot:
         "https://bsky.social/xrpc/app.bsky.feed.getPostThread?uri=at%3A%2F%2Fdid%3Aplc%3Ascx5mrfxxrqlfzkjcpbt3xfr%2Fapp.bsky.feed.post%2F3jszsrnruws27A"
         "at://did:plc:scx5mrfxxrqlfzkjcpbt3xfr/app.bsky.feed.post/3jszsrnruws27"
         "https://staging.bsky.app/profile/naia.bsky.social/post/3jszsrnruws27"
