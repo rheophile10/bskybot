@@ -1,4 +1,4 @@
-from skoot_bot.bsky.session import Session, BskyThing
+from bsky.session import Session, BskyThing
 from typing import List, Dict, Any
 
 
