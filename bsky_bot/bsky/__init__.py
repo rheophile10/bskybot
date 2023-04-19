@@ -1,6 +1,6 @@
-from bsky.session import Session
-from bsky.notifications import Notifications
-from bsky.skoot import Skoot
+from bsky_bot.bsky.session import Session
+from bsky_bot.bsky.notifications import Notifications
+from bsky_bot.bsky.skoot import Skoot
 from typing import List, Dict, Any, Optional, Tuple
 
 class Bsky:

@@ -1,7 +1,7 @@
-from bsky.session import Session, BskyThing
+from bsky_bot.bsky.session import Session, BskyThing
+from bsky_bot.bsky.structs import Author, Record, SkootBase
+from bsky_bot.bsky.skoot import Skoot
 from typing import List, Dict, Any, Optional, Tuple
-from bsky.structs import Author, Record, SkootBase
-from bsky.skoot import Skoot
 
 class Notification:
     def __init__(self, **kwargs)->None:

@@ -1,6 +1,6 @@
 from typing import List, Dict, Any, Optional
-from bsky.structs import Author, Record, SkootBase, Image
-from bsky.session import Session, BskyThing
+from bsky_bot.bsky.structs import Author, Record, SkootBase, Image
+from bsky_bot.bsky.session import Session, BskyThing
 
 
 class Skoot(BskyThing):

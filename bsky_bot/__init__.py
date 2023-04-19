@@ -1,5 +1,5 @@
-from pw_bsky.bsky import Bsky
-from pw_bsky.bsky.skoot import Skoot
+from bsky_bot.bsky import Bsky
+from bsky_bot.bsky.skoot import Skoot
 from typing import List
 
 class Bot:

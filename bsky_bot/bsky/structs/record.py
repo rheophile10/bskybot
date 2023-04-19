@@ -1,5 +1,4 @@
-from typing import List, Dict, Any
-from bsky.structs.image import Image
+from bsky_bot.bsky.structs.image import Image
 from dataclasses import dataclass
 
 @dataclass

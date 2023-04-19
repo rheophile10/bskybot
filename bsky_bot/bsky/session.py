@@ -2,7 +2,7 @@ import requests
 from requests import Response
 from datetime import datetime, timezone
 from typing import Tuple, Optional, Dict, Any, List
-from bsky.skoot import Skoot
+from bsky_bot.bsky.skoot import Skoot
 
 class Session:
     def __init__(self, username:str, password:str)->None:
