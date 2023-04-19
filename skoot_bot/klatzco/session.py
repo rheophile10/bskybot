@@ -2,7 +2,7 @@ import requests
 from requests import Response
 from datetime import datetime, timezone
 from typing import Tuple, Optional, Dict
-from hows_my_skooting.klatzco.structs import Post
+from skoot_bot.klatzco.structs import Post
 
 class Session:
     def __init__(self, username:str, password:str)->None:
