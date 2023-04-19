@@ -15,11 +15,10 @@ class Bot:
         for r in replies:
             self.parse_reply(r)
 
-    def parse_reply(self, skoots:List[Skoot]) ->None:
-        for s in skoots:
-            args = s.text.strip().split(' ')
-            if args[0] in self.options:
-                args[0](*args[1:])        
+    def parse_reply(self, skoot:Skoot) ->None:
+        args = skoot.text.strip().split(' ')
+        if args[0] in self.options:
+            args[0](*args[1:])        
 
     def _help(self, skoot:Skoot)->None:      
         x = ''
@@ -28,6 +27,5 @@ class Bot:
         skoot.reply(x)
     
     def _delete(self, skoot:Skoot)->None:
-        parent = skoot.get_parent()
-        parent.delete()
+        skoot.delete(skoot.parent.uri)
 
