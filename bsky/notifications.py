@@ -12,6 +12,7 @@ class Notifications(BskyThing):
     def get(self)->List['Notification']:
         result = self.bsky.get(self.xrpc, self.params)
         print(result)
+        return result
 
 
 class Notification:
