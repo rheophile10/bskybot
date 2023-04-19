@@ -1,13 +1,17 @@
-from skoot_bot.bsky.session import Session
-from typing import List
+from skoot_bot.bsky.session import Session, BskyThing
+from typing import List, Dict, Any
 
 
-class Notifications: 
-    def __init__(self)->None:
-        pass
+class Notifications(BskyThing): 
+    xrpc:str = "/xrpc/app.bsky.notification.listNotifications"
+    params:Dict[str, int] = {"limit":30}
+    
+    def __init__(self, session:Session)->None:
+        super().__init__(session, self.xrpc, self.params)
 
-    def get_notifications(self, session: Session)->List['Notification']:
-        pass
+    def get(self)->List['Notification']:
+        result = self.bsky.get(self.xrpc, self.params)
+        print(result)
 
 
 class Notification:
