@@ -1,6 +1,5 @@
-from bsky_bot.bsky.session import Session, BskyThing
-from bsky_bot.bsky.structs import Author, Record, SkootBase
-from bsky_bot.bsky.skoot import Skoot
+from bsky_bot.bsky.session import Session, BskyThing, Skoot, SkootBase, Record
+from bsky_bot.bsky.structs import Author
 from typing import List, Dict, Any, Optional, Tuple
 
 class Notification:
@@ -30,7 +29,7 @@ class Notifications(BskyThing):
             n = Notification(**n)
             if n._record.bsky_type == 'app.bsky.feed.post':
                 replies.append(
-                    Skoot(n._skoot_base, n._record.parent, 
+                    Skoot(self.bsky, n._skoot_base, n._record.parent, 
                           n._record.root, n.author, n._record.text)
                     )
         return replies, likes, follows

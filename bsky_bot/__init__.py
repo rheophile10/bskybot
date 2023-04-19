@@ -1,5 +1,4 @@
-from bsky_bot.bsky import Bsky
-from bsky_bot.bsky.skoot import Skoot
+from bsky_bot.bsky import Bsky, Skoot
 from typing import List
 
 class Bot:
@@ -17,8 +16,10 @@ class Bot:
 
     def parse_reply(self, skoot:Skoot) ->None:
         args = skoot.text.strip().split(' ')
-        if args[0] in self.options:
-            args[0](*args[1:])        
+        for i in args:
+            if i in self.options:
+                fxn = self.options[i][1]
+                fxn(skoot)        
 
     def _help(self, skoot:Skoot)->None:      
         x = ''
@@ -27,5 +28,5 @@ class Bot:
         skoot.reply(x)
     
     def _delete(self, skoot:Skoot)->None:
-        skoot.delete(skoot.parent.uri)
+        skoot.delete(skoot.parent)
 

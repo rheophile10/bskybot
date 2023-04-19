@@ -2,7 +2,8 @@ import requests
 from requests import Response
 from datetime import datetime, timezone
 from typing import Tuple, Optional, Dict, Any, List
-from bsky_bot.bsky.skoot import Skoot
+from bsky_bot.bsky.structs import Author, Image
+from dataclasses import dataclass
 
 class Session:
     def __init__(self, username:str, password:str)->None:
@@ -44,10 +45,11 @@ class Session:
         
         resp = requests.post(url, params=params, headers=headers, json=data)
         
-        try: 
+        if resp.status_code != 200:  
+            raise requests.exceptions.HTTPError(resp.content)
+        if resp.content:
             return resp.json()
-        except requests.exceptions.HTTPError as e:
-            return {"Error": e}
+
 
 
     def reskoot(self,url:str)->Response:
@@ -110,7 +112,7 @@ class Session:
         )
         return resp
 
-    def get_skoot_by_url(self,url:str) -> Skoot:
+    def get_skoot_by_url(self,url:str) -> 'Skoot':
         "https://bsky.social/xrpc/app.bsky.feed.getPostThread?uri=at%3A%2F%2Fdid%3Aplc%3Ascx5mrfxxrqlfzkjcpbt3xfr%2Fapp.bsky.feed.post%2F3jszsrnruws27A"
         "at://did:plc:scx5mrfxxrqlfzkjcpbt3xfr/app.bsky.feed.post/3jszsrnruws27"
         "https://staging.bsky.app/profile/naia.bsky.social/post/3jszsrnruws27"
@@ -337,4 +339,53 @@ class BskyThing:
     def __init__(self, session: Session)->None:
         self.bsky = session
 
+@dataclass
+class SkootBase:
+    cid: str
+    uri: str
+
+    def __post_init__(self)->None:
+        self.rkey = self.uri.split('/')[-1]
+class Skoot(BskyThing):
+    def __init__(self, 
+                 session,
+                 skoot:SkootBase, 
+                 parent:Optional[SkootBase], 
+                 root:Optional[SkootBase],
+                 author:Author,
+                 text:Optional[str]='',
+                 images:Optional[List[Image]]=[])->None:
+        super().__init__(session)
+        self.skoot = skoot
+        self.parent = parent
+        self.root = root
+        self.author = author
+        self.text= text
+        self.images = images
     
+    def delete(self, skoot:Optional[SkootBase]=None)->None:
+        data = {
+            "collection":"app.bsky.feed.post",
+            "repo":self.bsky.DID,
+            "rkey":skoot.rkey if skoot else self.skoot.rkey 
+            }
+        result = self.bsky.post("/xrpc/com.atproto.repo.deleteRecord",data=data)
+        print(result)
+
+class Record:
+
+    def __init__(self, **kwargs)->None:        
+        self.bsky_type = kwargs['$type']
+        self.created_at = kwargs['createdAt']
+        self.text = kwargs['text'] if 'text' in kwargs else None
+        if 'reply' in kwargs:
+            self.root = SkootBase(kwargs['reply']['root']['cid'],
+                                  kwargs['reply']['root']['uri'])
+            self.parent = SkootBase(kwargs['reply']['parent']['cid'],
+                                    kwargs['reply']['parent']['uri'])
+        if 'embed' in kwargs:
+            self.images = []
+            if kwargs['embed']['$type'] == 'app.bsky.embed.images':
+                self.images = [Image(image) for image in kwargs['embed']['images']]
+            else:
+                raise NotImplementedError
